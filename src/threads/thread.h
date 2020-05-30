@@ -4,6 +4,10 @@
 #include <debug.h>
 #include <list.h>
 #include <stdint.h>
+#include <hash.h>
+#include "filesys/file.h"
+#include "threads/synch.h"
+
 
 /* States in a thread's life cycle. */
 enum thread_status
@@ -96,10 +100,29 @@ struct thread
 #ifdef USERPROG
     /* Owned by userprog/process.c. */
     uint32_t *pagedir;                  /* Page directory. */
+    struct thread *parent;
+    struct list_elem child_elem;
+    struct list child;
+
+    int success;
+    int is_exit;
+    struct semaphore exit;
+    struct semaphore load;
+    int exit_status;
+
+    struct file **fdt;
+    int fd;
+
+    struct file *runfile;
+
 #endif
 
     /* Owned by thread.c. */
     unsigned magic;                     /* Detects stack overflow. */
+
+    struct hash vm;                     /* hash table that manage
+                                           the virtual address space which thread has*/
+
   };
 
 /* If false (default), use round-robin scheduler.

@@ -10,9 +10,11 @@
 #include "threads/palloc.h"
 #include "threads/switch.h"
 #include "threads/synch.h"
-#include "threads/vaddr.h"
 #ifdef USERPROG
 #include "userprog/process.h"
+#include "threads/vaddr.h"
+#include "filesys/file.h"
+#include "filesys/filesys.h"
 #endif
 
 /* Random value for struct thread's `magic' member.
@@ -206,6 +208,18 @@ thread_create (const char *name, int priority,
 
   intr_set_level (old_level);
 
+  struct thread *cur = thread_current();
+
+  t->parent = cur;
+  t->success = 0;
+  t->is_exit = 0;
+  sema_init(&t->exit, 0);
+  sema_init(&t->load, 0);
+  list_push_back(&cur->child, &t->child_elem);
+
+  t->fd = 2;
+  t->fdt = palloc_get_page(0);
+
   /* Add to run queue. */
   thread_unblock (t);
 
@@ -298,8 +312,11 @@ thread_exit (void)
      and schedule another process.  That process will destroy us
      when it calls thread_schedule_tail(). */
   intr_disable ();
-  list_remove (&thread_current()->allelem);
-  thread_current ()->status = THREAD_DYING;
+  struct thread *cur = thread_current();
+  list_remove (&cur->allelem);
+  cur->is_exit = 1;
+  sema_up(&cur->exit);
+  cur->status = THREAD_DYING;
   schedule ();
   NOT_REACHED ();
 }
@@ -470,6 +487,8 @@ init_thread (struct thread *t, const char *name, int priority)
   t->priority = priority;
   t->magic = THREAD_MAGIC;
   list_push_back (&all_list, &t->allelem);
+
+  list_init(&t->child);
 }
 
 /* Allocates a SIZE-byte frame at the top of thread T's stack and
@@ -541,7 +560,6 @@ thread_schedule_tail (struct thread *prev)
   if (prev != NULL && prev->status == THREAD_DYING && prev != initial_thread) 
     {
       ASSERT (prev != cur);
-      palloc_free_page (prev);
     }
 }
 
