@@ -14,6 +14,8 @@ void exit(int status);
 void check_valid_buffer(void* buffer, unsigned size, void* esp, bool to_write);
 void check_valid_string(const void *str, void *esp);
 
+void munmap(int mapid);
+
 #endif /* userprog/syscall.h */
 
 

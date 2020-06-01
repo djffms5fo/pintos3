@@ -145,8 +145,12 @@ process_exit (void)
   	process_close_file(num);
   }
   cur->fd = 2;
-
   palloc_free_page(cur->fdt);
+  int i = 1;
+  for(i; i < cur->next_mapid; i++){
+    munmap(i);
+  }
+  cur->next_mapid = 1;
   vm_destroy(&cur->vm);
   /* Destroy the current process's page directory and switch back
      to the kernel-only page directory. */
@@ -479,8 +483,8 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
       v->type = VM_BIN;
       v->file = file;
       v->offset = ofs;
-      v->read_bytes = read_bytes;
-      v->zero_bytes = zero_bytes;
+      v->read_bytes = page_read_bytes;
+      v->zero_bytes = page_zero_bytes;
       v->writable = writable;
       v->vaddr = upage;
       insert_vme(&thread_current()->vm, v);
@@ -622,12 +626,19 @@ bool handle_mm_fault(struct vm_entry *vme){
   void *kaddr = palloc_get_page(PAL_USER);
   switch(vme->type){
     case VM_BIN:
-      if(!load_file(kaddr, vme) || !install_page(vme->vaddr, kaddr, vme->writable))
+      if(!load_file(kaddr, vme) || !install_page(vme->vaddr, kaddr, vme->writable)){
+        palloc_free_page(kaddr);
         return false;
+      }
       vme->is_loaded = true;
       return true;
     case VM_FILE:
-      break;
+      if(!load_file(kaddr, vme) || !install_page(vme->vaddr, kaddr, vme->writable)){
+        palloc_free_page(kaddr);
+        return false;
+      }
+      vme->is_loaded = true;
+      return true;
     case VM_ANON:
       break;
     default:

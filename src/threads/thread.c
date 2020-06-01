@@ -220,6 +220,8 @@ thread_create (const char *name, int priority,
   t->fd = 2;
   t->fdt = palloc_get_page(0);
 
+  t->next_mapid = 1;
+
   /* Add to run queue. */
   thread_unblock (t);
 
@@ -489,6 +491,7 @@ init_thread (struct thread *t, const char *name, int priority)
   list_push_back (&all_list, &t->allelem);
 
   list_init(&t->child);
+  list_init(&t->mmap_list);
 }
 
 /* Allocates a SIZE-byte frame at the top of thread T's stack and

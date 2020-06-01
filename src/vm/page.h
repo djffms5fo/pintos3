@@ -27,12 +27,22 @@ struct vm_entry{
 	struct hash_elem elem;       // hash table element
 };
 
+struct mmap_file{
+	int mapid;
+	struct file *file;
+	struct list_elem elem;
+	struct list vme_list;
+};
+
+
 struct page{
 	void *kaddr;
 	struct vm_entry *vme;
 	struct thread *thread;
 	struct list_elem lru;
-}
+};
+
+
 
 
 void vm_init(struct hash *vm);
