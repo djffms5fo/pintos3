@@ -122,8 +122,8 @@ struct thread
 
     struct hash vm;                     /* hash table that manage
                                            the virtual address space which thread has*/
-    struct list mmap_list;
-    int next_mapid;
+    struct list mmap_list;              /* list of memory mapped files */
+    int next_mapid;                     /* mapid that next mapped file will get */
 
   };
 

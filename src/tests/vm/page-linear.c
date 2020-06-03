@@ -26,6 +26,7 @@ test_main (void)
     if (buf[i] != 0x5a)
       fail ("byte %zu != 0x5a", i);
 
+
   /* Encrypt zeros. */
   msg ("read/modify/write pass one");
   arc4_init (&arc4, "foobar", 6);

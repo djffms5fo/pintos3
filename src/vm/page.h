@@ -1,3 +1,6 @@
+#ifndef VM_PAGE_H
+#define VM_PAGE_H
+
 #include <hash.h>
 #include <stdbool.h>
 #include "threads/thread.h"
@@ -28,18 +31,18 @@ struct vm_entry{
 };
 
 struct mmap_file{
-	int mapid;
-	struct file *file;
-	struct list_elem elem;
-	struct list vme_list;
+	int mapid;                   // ID if memory map
+	struct file *file;           // mapped file 
+	struct list_elem elem;       // mmap list element
+	struct list vme_list;        // list of virtual memory entry
 };
 
 
 struct page{
-	void *kaddr;
-	struct vm_entry *vme;
-	struct thread *thread;
-	struct list_elem lru;
+	void *kaddr;                 // address of physical memory space
+	struct vm_entry *vme;        // virtual memory entry of page
+	struct thread *thread;       // thread that own page
+	struct list_elem lru;        // list element
 };
 
 
@@ -51,3 +54,5 @@ bool delete_vme(struct hash *vm, struct vm_entry *vme);
 struct vm_entry *find_vme(void *vaddr);
 void vm_destroy(struct hash *vm);
 bool load_file(void* kaddr, struct vm_entry *vme);
+
+#endif

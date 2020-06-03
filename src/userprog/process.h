@@ -3,6 +3,7 @@
 
 #include "threads/thread.h"
 #include "vm/page.h"
+#include "vm/frame.h"
 
 tid_t process_execute (const char *file_name);
 int process_wait (tid_t);
@@ -18,6 +19,8 @@ int process_add_file(struct file *f);
 struct file *process_get_file(int fd);
 void process_close_file(int fd);
 bool handle_mm_fault(struct vm_entry *vme);
+bool expand_stack(void *addr);
+bool verify_stack(void *sp);
 
 
 #endif /* userprog/process.h */

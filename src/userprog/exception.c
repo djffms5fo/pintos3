@@ -152,12 +152,14 @@ page_fault (struct intr_frame *f)
 
   if(not_present){
     struct vm_entry *v = find_vme(fault_addr);
-    if(!v)
+    if(!v){
       exit(-1);
+    }
     if(!handle_mm_fault(v))
       exit(-1);
   }
   if(!not_present)
     exit(-1);
 }
+
 

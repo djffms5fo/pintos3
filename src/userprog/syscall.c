@@ -7,7 +7,7 @@
 #include "filesys/filesys.h"
 #include "threads/vaddr.h"
 #include "vm/page.h"
-
+#include "vm/frame.h"
 
 static void syscall_handler (struct intr_frame *);
 
@@ -354,12 +354,11 @@ void do_munmap(struct mmap_file *mf){
 				}
 				lock_release(&filesys_lock);
 			}
-			pagedir_clear_page(cur->pagedir, v->vaddr);
+			free_page(v->vaddr);
 		}
 		v->is_loaded = false;
 		e = list_remove(e);
 		delete_vme(&cur->vm, v);
-		free(v);
 	}
 	list_remove(&mf->elem);
 	free(mf);

@@ -1,5 +1,4 @@
 #include "vm/page.h"
-#include "threads/thread.h"
 #include "threads/vaddr.h"
 
 static unsigned vm_hash_func(const struct hash_elem *e, void *aux);
